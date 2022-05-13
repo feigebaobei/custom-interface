@@ -71,7 +71,7 @@ router.route('/')
               bool = dataItem[index] > Number(filterItem.values[0] || 0)
               break
             case 'equals':
-              bool = (dataItem[index] === Number(filterItem.values[0] || 0)) // number
+              bool = (dataItem[index] === Number(filterItem.values[0])) // number
                     || (dataItem[index] === filterItem.values[0]) // string
               break
             case 'lt':
@@ -81,7 +81,6 @@ router.route('/')
               let v = new Date(dataItem[index]).getTime()
               let v0 = new Date(filterItem.values[0]).getTime()
               let v1 = new Date(filterItem.values[1]).getTime()
-              clog(v, v0, v1)
               // bool = v >= (dataItem[values][0] || 0) && v <= (dataItem[values][1] || 0)
               bool = v >= v0 && v <= v1
               break
