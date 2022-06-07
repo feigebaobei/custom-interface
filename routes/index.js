@@ -43,8 +43,19 @@ router.route('/setInterface')
     let objKey = {
       path: req.body.path,
       method: req.body.method,
-      queryOrBody: req.body.queryOrBody
     }
+    switch (req.body.method) {
+      case 'get':
+      default:
+        objKey.queryOrBody = req.body.queryOrBody
+        break;
+      case 'post':
+      case 'put':
+      case 'delete':
+        objKey.queryOrBody = JSON.parse(req.body.queryOrBody)
+        break
+    }
+    clog('objKey', objKey)
     objKey = hash(objKey, { algorithm: 'md5' });
     Object.assign(pathJson, {
       [`${objKey}`]: req.body.data
@@ -53,7 +64,7 @@ router.route('/setInterface')
     res.status(200).json({
       code: 0,
       message: "ok",
-      data: JSON.stringify(pathJson),
+      data: {}
     })
   } else {
     res.status(200).json({
@@ -75,20 +86,25 @@ router.route('/*')
   res.sendStatus(200)
 })
 .get(cors.corsWithOptions, (req, res) => {
-  // req.url string
-  // req.params object
-  // req.method string
-  // req.query object
-  // req.body object
+  // url: '/forField?...',
+  // method: 'GET',
+  // headers: {...}
+  // params: { '0': 'forField' },
+  // query: {},
+  // body: {},
+  // cookies: {...}
   let pathJson = readFileSyncPathJson()
-  let objKey = {
-    path: Object.values(req.params).join('/'),
-    method: 'get',
-    queryOrBody: Object.entries(req.query).reduce((r, [k, v]) => {
+  let queryOrBody = Object.entries(req.query).reduce((r, [k, v]) => {
       r += `&${k}=${v}`
       return r
     }, '').slice(1)
+  // clog(queryOrBody)
+  let objKey = {
+    path: req.url.slice(0, req.url.indexOf('?')), // Object.values(req.params).join('/'),
+    method: 'get',
+    queryOrBody
   }
+  // clog('objKey', objKey)
   objKey = hash(objKey, {algorithm: 'md5'})
   let data = pathJson[objKey]
   res.status(200).json({
@@ -100,10 +116,11 @@ router.route('/*')
 .post(cors.corsWithOptions, (req, res) => {
   let pathJson = readFileSyncPathJson()
   let objKey = {
-    path: Object.values(req.params).join('/'),
-    method: 'post', // req.method.toLowerCase()
+    path: req.url,
+    method: 'post',
     queryOrBody: req.body
   }
+  // clog('objKey', objKey)
   objKey = hash(objKey, {algorithm: 'md5'})
   res.status(200).json({
     code: 0,
