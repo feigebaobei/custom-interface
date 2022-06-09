@@ -9,7 +9,7 @@ const hash = require('object-hash');
 
 router.use(bodyParser.json())
 
-let clog = console.log
+// let clog = console.log
 const pathJsonPath = path.resolve(__dirname, './path.json')
 
 let readFileSyncPathJson = () => {
@@ -52,10 +52,10 @@ router.route('/setInterface')
       case 'post':
       case 'put':
       case 'delete':
-        objKey.queryOrBody = JSON.parse(req.body.queryOrBody)
+        objKey.queryOrBody = req.body.queryOrBody ? JSON.parse(req.body.queryOrBody) : {}
         break
     }
-    clog('objKey', objKey)
+    // clog('objKey', objKey)
     objKey = hash(objKey, { algorithm: 'md5' });
     Object.assign(pathJson, {
       [`${objKey}`]: req.body.data
@@ -81,6 +81,22 @@ router.route('/setInterface')
   res.send('delete')
 })
 
+
+// router.route('/forChange')
+// .options(cors.corsWithOptions, (req, res) => {
+//   res.sendStatus(200)
+// })
+// .get(cors.corsWithOptions, (req, res) => {
+//   res.status(200).json({
+//     code: 0,
+//     message: '',
+//     data: {
+//       two: 'two',
+//       four: 'four',
+//     }
+//   })
+// })
+
 router.route('/*')
 .options(cors.corsWithOptions, (req, res) => {
   res.sendStatus(200)
@@ -98,9 +114,12 @@ router.route('/*')
       r += `&${k}=${v}`
       return r
     }, '').slice(1)
-  // clog(queryOrBody)
+  let indexQuestion = req.url.indexOf('?')
+  if (indexQuestion < 0) {
+    indexQuestion = undefined
+  }
   let objKey = {
-    path: req.url.slice(0, req.url.indexOf('?')), // Object.values(req.params).join('/'),
+    path: req.url.slice(0, indexQuestion), // Object.values(req.params).join('/'),
     method: 'get',
     queryOrBody
   }

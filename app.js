@@ -5,7 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
-var fastBiRouter = require('./routes/fastBi');
+// var fastBiRouter = require('./routes/fastBi');
 var usersRouter = require('./routes/users');
 
 var app = express();
@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/forFastBi', fastBiRouter);
+// app.use('/forFastBi', fastBiRouter);
 app.use('/', indexRouter);
 // app.use('/', fastBiRouter);
 app.use('/users', usersRouter);
