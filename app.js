@@ -5,6 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
+var searchWordRouter = require('./routes/searchWord');
 // var fastBiRouter = require('./routes/fastBi');
 var usersRouter = require('./routes/users');
 
@@ -18,9 +19,10 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'))); // 设置静态资源的目录
 
 // app.use('/forFastBi', fastBiRouter);
+app.use('/searchWord', searchWordRouter);
 app.use('/', indexRouter);
 // app.use('/', fastBiRouter);
 app.use('/users', usersRouter);

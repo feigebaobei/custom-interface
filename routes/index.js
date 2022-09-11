@@ -6,7 +6,6 @@ const fs = require('fs')
 const path = require('path')
 const hash = require('object-hash');
 
-
 router.use(bodyParser.json())
 
 // let clog = console.log
@@ -80,22 +79,6 @@ router.route('/setInterface')
 .delete(cors.corsWithOptions, (req, res) => {
   res.send('delete')
 })
-
-
-// router.route('/forChange')
-// .options(cors.corsWithOptions, (req, res) => {
-//   res.sendStatus(200)
-// })
-// .get(cors.corsWithOptions, (req, res) => {
-//   res.status(200).json({
-//     code: 0,
-//     message: '',
-//     data: {
-//       two: 'two',
-//       four: 'four',
-//     }
-//   })
-// })
 
 router.route('/*')
 .options(cors.corsWithOptions, (req, res) => {
