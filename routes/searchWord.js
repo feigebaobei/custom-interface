@@ -2,22 +2,28 @@ var express = require('express');
 var cors = require('./cors')
 var router = express.Router();
 let bodyParser = require('body-parser');
-const fs = require('fs')
+// const fs = require('fs')
+const fsPromises = require('fs/promises')
 const path = require('path')
-// const hash = require('object-hash');
 const { instance } = require('../utils');
 
 router.use(bodyParser.json())
 
-// let clog = console.log
-const pathJsonPath = path.resolve(__dirname, './path.json')
+const searchWordHistoryJson = path.resolve(__dirname, './searchWordHistory.json')
 
-let readFileSyncPathJson = () => {
-  let pathJson = fs.readFileSync(pathJsonPath, {
-    encoding: 'utf8'
-  })
-  pathJson = JSON.parse(pathJson)
-  return pathJson
+
+let readHistory = () => {
+    return fsPromises.readFile(searchWordHistoryJson, {
+        encoding: 'utf-8'
+    })
+}
+
+let saveHistory = ({entry, explain}) => {
+    readHistory().then(wordStr => {
+        let wordJson = JSON.parse(wordStr)
+        wordJson.push({entry, explain})
+        fsPromises.writeFile(searchWordHistoryJson, JSON.stringify(wordJson))
+    })
 }
 
 router.route('/')
@@ -25,7 +31,6 @@ router.route('/')
   res.sendStatus(200)
 })
 .get(cors.corsWithOptions, (req, res) => {
-  // console.log('req', req)
   instance({
     url: 'https://dict.youdao.com/suggest',
     method: 'get',
@@ -40,6 +45,7 @@ router.route('/')
     params: req.query || {}
   }).then(dataFromYD => {
     if (dataFromYD.result.code === 200) {
+        saveHistory(dataFromYD.data.entries[0])
       res.status(200).json({
         code: 0,
         message: "ok",
@@ -72,6 +78,51 @@ router.route('/')
 })
 .delete(cors.corsWithOptions, (req, res) => {
   res.send('delete')
+})
+
+router.route('/history')
+.options(cors.corsWithOptions, (req, res) => {
+  res.sendStatus(200)
+})
+.get(cors.corsWithOptions, (req, res) => {
+    readHistory().then(wordStr => {
+        res.status(200).json({
+            code: 0,
+            message: "ok",
+            data: JSON.parse(wordStr)
+        })
+    })
+})
+.post(cors.corsWithOptions, (req, res) => {
+  res.status(200).json({
+    code: 0,
+    message: "ok",
+    data: {},
+  })
+})
+.put(cors.corsWithOptions, (req, res) => {
+    res.status(200).json({
+        code: 0,
+        message: "ok",
+        data: {},
+    })
+})
+.delete(cors.corsWithOptions, (req, res) => {
+//   res.send('delete')
+    // req.body {entry: xxx}
+    let entry = req.body.entry
+    readHistory().then(wordStr => {
+        let wordJson = JSON.parse(wordStr)
+        wordJson = wordJson.filter(item => {
+            return item.entry !== entry
+        })
+        fsPromises.writeFile(searchWordHistoryJson, JSON.stringify(wordJson))
+        res.status(200).json({
+            code: 0,
+            message: "ok",
+            data: ''
+        })
+    })
 })
 
 module.exports = router;
