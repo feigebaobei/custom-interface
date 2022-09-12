@@ -21,7 +21,7 @@ let readHistory = () => {
 let saveHistory = ({entry, explain}) => {
     readHistory().then(wordStr => {
         let wordJson = JSON.parse(wordStr)
-        wordJson.push({entry, explain})
+        wordJson.unshift({entry, explain})
         fsPromises.writeFile(searchWordHistoryJson, JSON.stringify(wordJson))
     })
 }
