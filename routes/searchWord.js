@@ -19,10 +19,22 @@ let readHistory = () => {
     })
 }
 
-let saveHistory = ({entry, explain}) => {
+let saveHistory = ({
+  entry,
+  explain,
+  ukphone,
+  usphone,
+  query,
+}) => {
     readHistory().then(wordStr => {
         let wordJson = JSON.parse(wordStr)
-        wordJson.unshift({entry, explain})
+        wordJson.unshift({
+          entry,
+          explain,
+          ukphone,
+          usphone,
+          query,
+        })
         fsPromises.writeFile(searchWordHistoryJson, JSON.stringify(wordJson))
     })
 }
@@ -74,6 +86,7 @@ router.route('/')
     entries[0].ukphone = symbol.simple.word[0].ukphone
     entries[0].usphone = symbol.simple.word[0].usphone
     entries[0].query = symbol.simple.query
+    saveHistory(entries[0])
     res.status(200).json({
       code: 0,
       message: '',
@@ -86,10 +99,6 @@ router.route('/')
       error
     })
   })
-
-
-
-
 })
 .post(cors.corsWithOptions, (req, res) => {
   res.status(200).json({
