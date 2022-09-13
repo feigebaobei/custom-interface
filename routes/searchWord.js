@@ -5,6 +5,7 @@ let bodyParser = require('body-parser');
 // const fs = require('fs')
 const fsPromises = require('fs/promises')
 const path = require('path')
+const FormData = require('form-data')
 const { instance } = require('../utils');
 
 router.use(bodyParser.json())
@@ -31,7 +32,7 @@ router.route('/')
   res.sendStatus(200)
 })
 .get(cors.corsWithOptions, (req, res) => {
-  instance({
+  let transP = instance({
     url: 'https://dict.youdao.com/suggest',
     method: 'get',
     // params: {
@@ -43,28 +44,52 @@ router.route('/')
     //   q: req.query.q || ''
     // }
     params: req.query || {}
-  }).then(dataFromYD => {
-    if (dataFromYD.result.code === 200) {
-        saveHistory(dataFromYD.data.entries[0])
-      res.status(200).json({
-        code: 0,
-        message: "ok",
-        data: dataFromYD.data.entries
-      })
-    } else {
-      res.status(200).json({
-        code: 1,
-        message: dataFromYD.result.message,
-        data: ''
-      })
-    }
-  }).catch((error) => {
+  })
+  // }).then(dataFromYD => {
+    // if (dataFromYD.result.code === 200) {}
+  // })
+
+  // q: apple
+  // le: en
+  // t: 2
+  // client: web
+  // sign: 1dde9b3462e35d76b630728d502a8db6
+  // keyfrom: webdict
+  let formData = new FormData()
+  formData.append('q', req.query.q)
+  formData.append('le', 'en')
+  formData.append('t', '2')
+  formData.append('client', 'web')
+  formData.append('sign', '1dde9b3462e35d76b630728d502a8db6')
+  formData.append('keyfrom', 'webdict')
+  let symbolP = instance({
+    url: 'https://dict.youdao.com/jsonapi_s?doctype=json&jsonversion=4',
+    method: 'post',
+    data: formData
+  })
+
+  Promise.all([transP, symbolP]).then(([trans, symbol]) => {
+    // console.log('trans, symbol', symbol.simple)
+    let entries = trans.data.entries
+    entries[0].ukphone = symbol.simple.word[0].ukphone
+    entries[0].usphone = symbol.simple.word[0].usphone
+    entries[0].query = symbol.simple.query
+    res.status(200).json({
+      code: 0,
+      message: '',
+      data: entries
+    })
+  }).catch(error => {
     res.status(200).json({
       code: 1,
-      message: '参数类型错误',
+      message: '错误',
       error
     })
   })
+
+
+
+
 })
 .post(cors.corsWithOptions, (req, res) => {
   res.status(200).json({
