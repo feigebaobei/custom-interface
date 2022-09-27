@@ -32,3 +32,4 @@ npm-debug.log
 
 routes/path.json
 routes/searchWordHistory.json
+data/file.sqlite
