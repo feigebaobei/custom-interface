@@ -11,21 +11,12 @@ const {dbPromise} = require('../data/sqlite');
 
 router.use(bodyParser.json())
 
-
-// let readHistory = () => {
-//     return fsPromises.readFile(searchWordHistoryJson, {
-//         encoding: 'utf-8'
-//     })
-// }
-
 // word char, ukphone char, usphone char, translate char
 let saveHistory2 = ({ukphone, usphone, entry, explain}) => {
 dbPromise.then(db => {
   db.run(`INSERT INTO searchWordHistory VALUES ('${entry}', '${ukphone}', '${usphone}', '${explain}');`) // 必须要有引号
 })
 }
-
-
 
 router.route('/')
 .options(cors.corsWithOptions, (req, res) => {
@@ -132,21 +123,6 @@ router.route('/history')
     })
 })
 .delete(cors.corsWithOptions, (req, res) => {
-//   res.send('delete')
-    // req.body {entry: xxx}
-    // let entry = req.body.entry
-    // readHistory().then(wordStr => {
-    //     let wordJson = JSON.parse(wordStr)
-    //     wordJson = wordJson.filter(item => {
-    //         return item.entry !== entry
-    //     })
-    //     fsPromises.writeFile(searchWordHistoryJson, JSON.stringify(wordJson))
-    //     res.status(200).json({
-    //         code: 0,
-    //         message: "ok",
-    //         data: ''
-    //     })
-    // })
     dbPromise.then(db => {
       db.run(`DELETE FROM searchWordHistory WHERE word = '${req.body.entry}';`) // 必须要有引号
       res.status(200).json({
