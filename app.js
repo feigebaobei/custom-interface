@@ -6,6 +6,7 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var searchWordRouter = require('./routes/searchWord');
+var fixedRouter = require('./routes/fixed');
 // var fastBiRouter = require('./routes/fastBi');
 var usersRouter = require('./routes/users');
 
@@ -23,6 +24,7 @@ app.use(express.static(path.join(__dirname, 'public'))); // 设置静态资源�
 
 // app.use('/forFastBi', fastBiRouter);
 app.use('/searchWord', searchWordRouter);
+app.use('/fixed', fixedRouter);
 app.use('/', indexRouter);
 // app.use('/', fastBiRouter);
 app.use('/users', usersRouter);

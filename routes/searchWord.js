@@ -7,10 +7,31 @@ const fsPromises = require('fs/promises')
 const path = require('path')
 const FormData = require('form-data')
 const { instance } = require('../utils');
+const {dbPromise} = require('../data/sqlite');
+// const initSqlJs = require('sql.js/dist/sql-wasm.js') 
 
 router.use(bodyParser.json())
 
 const searchWordHistoryJson = path.resolve(__dirname, './searchWordHistory.json')
+
+
+
+
+// dbPromise.then(db => {
+//   let sqlstr = "CREATE TABLE searchWordHistory (word char, ukphone char, usphone char, translate char);\
+//   INSERT INTO searchWordHistory VALUES ('boy', 'boy', 'boy', 'boy');"
+//   db.run(sqlstr);
+//   let result = db.exec('SELECT * FROM searchWordHistory')
+//   console.log('result', result, JSON.stringify(result[0].values))
+//   let data = db.export()
+//   const buffer = Buffer.from(data);
+//   fsPromises.writeFile(path.resolve(__dirname, "../data/file.sqlite"), buffer);
+// })
+
+
+
+
+
 
 
 let readHistory = () => {
@@ -38,6 +59,14 @@ let saveHistory = ({
         fsPromises.writeFile(searchWordHistoryJson, JSON.stringify(wordJson))
     })
 }
+
+let saveHistory2 = ({ukphone, usphone, query, explain}) => {
+dbPromise.then(db => {
+  db.run(`INSERT INTO searchWordHistory VALUES ('${query}', '${ukphone}', '${usphone}', '${explain}');`)
+})
+}
+
+
 
 router.route('/')
 .options(cors.corsWithOptions, (req, res) => {
@@ -86,7 +115,9 @@ router.route('/')
     entries[0].ukphone = symbol.simple.word[0].ukphone
     entries[0].usphone = symbol.simple.word[0].usphone
     entries[0].query = symbol.simple.query
-    saveHistory(entries[0])
+    // saveHistory(entries[0])
+    saveHistory2(entries[0])
+    
     res.status(200).json({
       code: 0,
       message: '',
@@ -119,12 +150,23 @@ router.route('/history')
   res.sendStatus(200)
 })
 .get(cors.corsWithOptions, (req, res) => {
-    readHistory().then(wordStr => {
-        res.status(200).json({
-            code: 0,
-            message: "ok",
-            data: JSON.parse(wordStr)
-        })
+  // old
+    // readHistory().then(wordStr => {
+    //     res.status(200).json({
+    //         code: 0,
+    //         message: "ok",
+    //         data: JSON.parse(wordStr)
+    //     })
+    // })
+
+    // new
+    dbPromise.then(db => {
+      let result = db.exec('SELECT * FROM searchWordHistory')
+      res.status(200).json({
+          code: 0,
+          message: "ok",
+          data: result
+      })
     })
 })
 .post(cors.corsWithOptions, (req, res) => {

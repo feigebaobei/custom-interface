@@ -18,7 +18,9 @@
     "jade": "~1.11.0",
     "md5": "^2.3.0",
     "morgan": "~1.9.1",
-    "object-hash": "^3.0.0"
+    "node-schedule": "^2.1.0",
+    "object-hash": "^3.0.0",
+    "sql.js": "^1.8.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.16"
