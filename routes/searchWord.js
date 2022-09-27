@@ -13,9 +13,9 @@ router.use(bodyParser.json())
 
 // word char, ukphone char, usphone char, translate char
 let saveHistory2 = ({ukphone, usphone, entry, explain}) => {
-dbPromise.then(db => {
-  db.run(`INSERT INTO searchWordHistory VALUES ('${entry}', '${ukphone}', '${usphone}', '${explain}');`) // 必须要有引号
-})
+  dbPromise.then(db => {
+    db.run(`INSERT INTO searchWordHistory VALUES ('${entry}', '${ukphone}', '${usphone}', '${explain}');`) // 必须要有引号
+  })
 }
 
 router.route('/')
