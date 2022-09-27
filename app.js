@@ -10,6 +10,8 @@ var fixedRouter = require('./routes/fixed');
 // var fastBiRouter = require('./routes/fastBi');
 var usersRouter = require('./routes/users');
 
+require('./schedule')
+
 var app = express();
 
 // view engine setup

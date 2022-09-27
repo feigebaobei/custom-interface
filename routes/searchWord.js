@@ -8,61 +8,20 @@ const path = require('path')
 const FormData = require('form-data')
 const { instance } = require('../utils');
 const {dbPromise} = require('../data/sqlite');
-// const initSqlJs = require('sql.js/dist/sql-wasm.js') 
 
 router.use(bodyParser.json())
 
-const searchWordHistoryJson = path.resolve(__dirname, './searchWordHistory.json')
 
+// let readHistory = () => {
+//     return fsPromises.readFile(searchWordHistoryJson, {
+//         encoding: 'utf-8'
+//     })
+// }
 
-
-
-// dbPromise.then(db => {
-//   let sqlstr = "CREATE TABLE searchWordHistory (word char, ukphone char, usphone char, translate char);\
-//   INSERT INTO searchWordHistory VALUES ('boy', 'boy', 'boy', 'boy');"
-//   db.run(sqlstr);
-//   let result = db.exec('SELECT * FROM searchWordHistory')
-//   console.log('result', result, JSON.stringify(result[0].values))
-//   let data = db.export()
-//   const buffer = Buffer.from(data);
-//   fsPromises.writeFile(path.resolve(__dirname, "../data/file.sqlite"), buffer);
-// })
-
-
-
-
-
-
-
-let readHistory = () => {
-    return fsPromises.readFile(searchWordHistoryJson, {
-        encoding: 'utf-8'
-    })
-}
-
-let saveHistory = ({
-  entry,
-  explain,
-  ukphone,
-  usphone,
-  query,
-}) => {
-    readHistory().then(wordStr => {
-        let wordJson = JSON.parse(wordStr)
-        wordJson.unshift({
-          entry,
-          explain,
-          ukphone,
-          usphone,
-          query,
-        })
-        fsPromises.writeFile(searchWordHistoryJson, JSON.stringify(wordJson))
-    })
-}
-
-let saveHistory2 = ({ukphone, usphone, query, explain}) => {
+// word char, ukphone char, usphone char, translate char
+let saveHistory2 = ({ukphone, usphone, entry, explain}) => {
 dbPromise.then(db => {
-  db.run(`INSERT INTO searchWordHistory VALUES ('${query}', '${ukphone}', '${usphone}', '${explain}');`)
+  db.run(`INSERT INTO searchWordHistory VALUES ('${entry}', '${ukphone}', '${usphone}', '${explain}');`) // 必须要有引号
 })
 }
 
@@ -115,9 +74,7 @@ router.route('/')
     entries[0].ukphone = symbol.simple.word[0].ukphone
     entries[0].usphone = symbol.simple.word[0].usphone
     entries[0].query = symbol.simple.query
-    // saveHistory(entries[0])
     saveHistory2(entries[0])
-    
     res.status(200).json({
       code: 0,
       message: '',
@@ -150,15 +107,6 @@ router.route('/history')
   res.sendStatus(200)
 })
 .get(cors.corsWithOptions, (req, res) => {
-  // old
-    // readHistory().then(wordStr => {
-    //     res.status(200).json({
-    //         code: 0,
-    //         message: "ok",
-    //         data: JSON.parse(wordStr)
-    //     })
-    // })
-
     // new
     dbPromise.then(db => {
       let result = db.exec('SELECT * FROM searchWordHistory')
@@ -186,18 +134,26 @@ router.route('/history')
 .delete(cors.corsWithOptions, (req, res) => {
 //   res.send('delete')
     // req.body {entry: xxx}
-    let entry = req.body.entry
-    readHistory().then(wordStr => {
-        let wordJson = JSON.parse(wordStr)
-        wordJson = wordJson.filter(item => {
-            return item.entry !== entry
-        })
-        fsPromises.writeFile(searchWordHistoryJson, JSON.stringify(wordJson))
-        res.status(200).json({
-            code: 0,
-            message: "ok",
-            data: ''
-        })
+    // let entry = req.body.entry
+    // readHistory().then(wordStr => {
+    //     let wordJson = JSON.parse(wordStr)
+    //     wordJson = wordJson.filter(item => {
+    //         return item.entry !== entry
+    //     })
+    //     fsPromises.writeFile(searchWordHistoryJson, JSON.stringify(wordJson))
+    //     res.status(200).json({
+    //         code: 0,
+    //         message: "ok",
+    //         data: ''
+    //     })
+    // })
+    dbPromise.then(db => {
+      db.run(`DELETE FROM searchWordHistory WHERE word = '${req.body.entry}';`) // 必须要有引号
+      res.status(200).json({
+        code: 0,
+        message: "ok",
+        data: ''
+      })
     })
 })
 
