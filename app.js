@@ -9,6 +9,7 @@ var searchWordRouter = require('./routes/searchWord');
 var fixedRouter = require('./routes/fixed');
 // var fastBiRouter = require('./routes/fastBi');
 var usersRouter = require('./routes/users');
+var picBedRouter = require('./routes/picBed');
 
 require('./schedule')
 
@@ -27,9 +28,9 @@ app.use(express.static(path.join(__dirname, 'public'))); // 设置静态资源�
 // app.use('/forFastBi', fastBiRouter);
 app.use('/searchWord', searchWordRouter);
 app.use('/fixed', fixedRouter);
-app.use('/', indexRouter);
-// app.use('/', fastBiRouter);
 app.use('/users', usersRouter);
+app.use('/picBed', picBedRouter);
+app.use('/', indexRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

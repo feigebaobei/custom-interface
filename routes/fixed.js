@@ -17,7 +17,8 @@ router.route('/')
   res.sendStatus(200)
 })
 .get(cors.corsWithOptions, (req, res) => {
-  dbPromise(path.resolve(__dirname, '../data/file.sqlite')).then(db => {
+  // dbPromise(path.resolve(__dirname, '../data/file.sqlite')).then(db => {
+  dbPromise.then(db => {
       let result = db.exec('SELECT * FROM hello')
       res.status(200).json({
         code: 0,
